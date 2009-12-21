@@ -28,12 +28,12 @@ module ET
   #
   # usage:
   #
-  #   # First load the Tracker client
-  #   tracker_client = ET::Tracker.new('username', 'password')
+  #   # First load the Trigger client
+  #   trigger = ET::TriggeredSend.new('username', 'password')
   #
-  #   # get job summary
-  #   summary = job_client.retrieve_summary(12345) # pass a job_id
-  #   => {'sentCount' => 163, 'deliveredCount' => 159, ... }
+  #   # send message
+  #   summary = trigger.deliver("someone@domain.org", "message-key", {:first_name => 'John', :last_name => 'Wayne'})
+  #   => 0 # success
   #
   #
   class TriggeredSend < Client
@@ -42,8 +42,8 @@ module ET
       super
     end
 
-    # retrieves tracking information for a particular job id
-    def add_subscriber( email, external_key, attributes={} )
+    # deliver triggered email
+    def deliver(email, external_key, attributes={} )
       @email = email
       @external_key = external_key
       @attributes = attributes
@@ -52,8 +52,8 @@ module ET
         io << render_template('triggered_send')
       end
       Error.check_response_error(response)
-      # doc = Hpricot.XML(response.read_body)
-      # doc.at("subscriber_description").inner_html.to_i
+      doc = Hpricot.XML(response.read_body)
+      doc.at("triggered_send_description").inner_html.to_i
     end
 
   end
