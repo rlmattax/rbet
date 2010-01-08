@@ -41,12 +41,12 @@ module ET
   class Subscriber < Client
     attr_accessor :attrs
     attr_reader :email, :status
- 
+
     def initialize(username,password,options={})
       super
       @attrs = {}
     end
-    
+
     def load!(email)
       @email = email
       response = send do|io|
@@ -79,7 +79,7 @@ module ET
     # desc:
     #   add this user as a new subscriber to the list, with a set of attributes
     # params:
-    #   listid: id of the e-mail list to subscribe this user to 
+    #   listid: id of the e-mail list to subscribe this user to
     #   email: E-mail address of subscriber
     def add( email, listid, attributes ={} )
       @email = email
@@ -92,6 +92,46 @@ module ET
       doc = Hpricot.XML(response.read_body)
       doc.at("subscriber_description").inner_html.to_i
     end
+
+    # desc:
+    #   update this a subscriber
+    # params:
+    #   listid: id of the e-mail list to subscribe this user to
+    #   email: E-mail address of subscriber
+    #   subscriberid: id for the subscriber to update
+    def update(subscriberid, email, listid, attributes ={} )
+      @email = email
+      @listid = listid
+      @subscriberid = subscriberid
+      @attributes = attributes
+      response = send do|io|
+        io << render_template('subscriber_update')
+      end
+      Error.check_response_error(response)
+      doc = Hpricot.XML(response.read_body)
+      doc.at("subscriber_description").inner_html.to_i
+    end
+
+    # desc:
+    #   delete this user as a new subscriber to the list, or completely from ET
+    # params:
+    #   listid: id of the e-mail list to unsubscribe this user from
+    #   email: E-mail address of subscriber
+    #   subscriberid: id for the subscriber to delete COMPLETELY
+    def delete(subscriberid, email, listid, attributes ={} )
+      @email = email
+      @subscriber_listid = listid
+      @subscriberid = subscriberid
+
+      puts render_template('subscriber_delete')
+      response = send do|io|
+        io << render_template('subscriber_delete')
+      end
+      Error.check_response_error(response)
+      doc = Hpricot.XML(response.read_body)
+      doc.at("subscriber_info").inner_html
+    end
+
 
   end
 end
