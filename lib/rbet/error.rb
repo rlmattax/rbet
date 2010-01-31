@@ -22,18 +22,18 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-module ET
+module RBET
   class Error < RuntimeError
     attr_reader :code, :message
     def initialize(error_code,error_msg)
-      @code = error_code 
+      @code = error_code
       @message = error_msg
     end
-    
+
     def to_s
       "Code: #{@code}.  Message: #{@message}"
     end
-    
+
     # raise a new error object from an HTTP response if it contains an error
     def self.check_response_error(response)
       if response.class != Net::HTTPOK

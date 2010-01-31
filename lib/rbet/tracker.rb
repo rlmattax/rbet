@@ -1,7 +1,5 @@
 #
-# Copyright (c) 2007 Todd A. Fisher
-#
-# Portions Copyright (c) 2008 Shanti A. Braford
+# Copyright (c) 2008 Shanti A. Braford
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,20 +19,38 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-module ET
-  module Renderable
-    def set_template_path(path)
-      @template_path = path
+
+require 'rubygems'
+require 'hpricot'
+
+module RBET
+
+  #
+  # usage:
+  #
+  #   # First load the Tracker client
+  #   tracker_client = ET::Tracker.new('username', 'password')
+  #
+  #   # get job summary
+  #   summary = job_client.retrieve_summary(12345) # pass a job_id
+  #   => {'sentCount' => 163, 'deliveredCount' => 159, ... }
+  #
+  #
+  class Tracker < Client
+
+    def initialize(username,password,options={})
+      super
     end
 
-    def template_path(name)
-      File.join( (@template_path || File.dirname(__FILE__)), "#{name}.rxml")
-    end
-
-    def render_template( name )
-      erb = ERB.new( File.open( template_path(name) ,"r").read, 0, "<>")
-      erb.result( binding )
+    # retrieves tracking information for a particular job id
+    def retrieve_summary( job_id )
+      @job_id = job_id
+      response = send do|io|
+        io << render_template('tracker_retrieve_summary')
+      end
+      Error.check_response_error(response)
+      h = Hash.from_xml(response.read_body)
+      h['exacttarget']['system']['tracking']['emailSummary']
     end
 
   end

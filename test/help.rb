@@ -1,6 +1,6 @@
 require 'test/unit'
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
-require 'et'
+require 'rbet'
 require 'webrick'
 require 'thread'
 require 'rubygems'
@@ -19,20 +19,20 @@ class ::WEBrick::BasicLog
   end
 end
 
-class ETService
-  include ET::Renderable
+class RBETService
+  include RBET::Renderable
   def initialize
     set_template_path( File.join(File.dirname(__FILE__), "templates") )
   end
 end
 
-class DiagnosticsService < ETService
+class DiagnosticsService < RBETService
   def ping(params)
     render_template("diagnostics_ping_success")
   end
 end
 
-class ListService < ETService
+class ListService < RBETService
   def add(params)
     list_type = params['list_type']
     if list_type != 'private' and list_type != 'public'
@@ -47,7 +47,7 @@ class ListService < ETService
   end
 end
 
-class SubscriberService < ETService
+class SubscriberService < RBETService
 
   def retrieve(params)
     if params['search_value2']
@@ -61,7 +61,7 @@ class SubscriberService < ETService
 end
 
 # list for subscriber requests and respond like ET would
-class SubscriberETService < ::WEBrick::HTTPServlet::AbstractServlet
+class SubscriberRBETService < ::WEBrick::HTTPServlet::AbstractServlet
 
   def do_POST(req, res)
 
@@ -96,16 +96,16 @@ private
 
 end
 
-module ET
+module RBET
   module TestCase
 
     def setup
       # create the server
-      @server = WEBrick::HTTPServer.new( :Port => 99999 )
+      @server = WEBrick::HTTPServer.new({:BindAddress => "localhost", :Port => 9999})
 
       # setup test server (simulates exact target)
-      @server.mount("/test/", SubscriberETService)
- 
+      @server.mount("/test/", SubscriberRBETService)
+
       # start up the server in a background thread
       @thread = Thread.new(@server) do|server|
         server.start

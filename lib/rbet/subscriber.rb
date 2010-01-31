@@ -25,7 +25,7 @@
 require 'rubygems'
 require 'hpricot'
 
-module ET
+module RBET
 
   #
   # usage:

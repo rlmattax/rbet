@@ -26,15 +26,15 @@ require 'net/https'
 require 'uri'
 require 'erb'
 
-module ET
+module RBET
   class Client
     attr_reader :username, :password, :headers
-    include ET::Renderable
-    
+    include RBET::Renderable
+
     #  Initializes a new ET::Client object
-    #  
+    #
     #   Usaage:
-    #    
+    #
     #     client = ET::Client.new('tester','tester11', {:service_url => 'http://127.0.0.1:99999/test/', :use_ssl => false})
     #     client.status
     #     => "Running"
@@ -53,13 +53,13 @@ module ET
         'Content-Type' => 'application/x-www-form-urlencoded'
       }
     end
-    
+
     # Boolean value of whether the service is running or not currently
     def live?
       @current_status ||= status
       @current_status == 'Running'
     end
-    
+
     # Returns the string value from the ExactTarget API ping method. ("Running" when the system is operational)
     def status
       response = send do|io|
@@ -69,7 +69,7 @@ module ET
       doc = Hpricot.XML( response.read_body )
       @current_status = doc.at("Ping").inner_html
     end
-    
+
     # usage:
     #   send do|io|
     #     io << 'more xml'

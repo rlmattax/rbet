@@ -1,10 +1,10 @@
 require File.join(File.dirname(__FILE__),"help.rb")
 
 class SubscriberClient  < Test::Unit::TestCase
-  include ET::TestCase
+  include RBET::TestCase
 
   def test_subscriber_load
-    client = ET::Subscriber.new('tester', 'tester11', :service_url => 'http://127.0.0.1:99999/test/', :use_ssl => false)
+    client = RBET::Subscriber.new('tester', 'tester11', :service_url => 'http://127.0.0.1:9999/test/', :use_ssl => false)
     client.load!('jdoe@email.com')
     assert_equal 'jdoe@email.com', client.attrs['Email Address']
     assert_equal 'John', client.attrs['First Name']

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Shanti A. Braford
+# Copyright (c) 2007 Todd A. Fisher
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,42 +19,13 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 
 require 'rubygems'
-require 'hpricot'
+gem 'activesupport'
+require 'active_support'
 
-module ET
-
-  #
-  # usage:
-  #
-  #   # First load the Trigger client
-  #   trigger = ET::TriggeredSend.new('username', 'password')
-  #
-  #   # send message
-  #   summary = trigger.deliver("someone@domain.org", "message-key", {:first_name => 'John', :last_name => 'Wayne'})
-  #   => 0 # success
-  #
-  #
-  class TriggeredSend < Client
-
-    def initialize(username, password, options={})
-      super
-    end
-
-    # deliver triggered email
-    def deliver(email, external_key, attributes={} )
-      @email = email
-      @external_key = external_key
-      @attributes = attributes
-      raise "external_key can't be nil" unless @external_key
-      response = send do|io|
-        io << render_template('triggered_send')
-      end
-      Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-      doc.at("triggered_send_description").inner_html.to_i
-    end
-
-  end
+$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/rbet"))
+%w(renderable error client subscriber list tracker triggered_send).each do |lib|
+  require lib
 end

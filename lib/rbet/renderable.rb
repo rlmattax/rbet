@@ -1,6 +1,8 @@
 #
 # Copyright (c) 2007 Todd A. Fisher
 #
+# Portions Copyright (c) 2008 Shanti A. Braford
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -20,12 +22,20 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+module RBET
+  module Renderable
+    def set_template_path(path)
+      @template_path = path
+    end
 
-require 'rubygems'
-gem 'activesupport'
-require 'activesupport'
+    def template_path(name)
+      File.join( (@template_path || File.dirname(__FILE__)), "#{name}.rxml")
+    end
 
-$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/et"))
-%w(renderable error client subscriber list tracker triggered_send).each do |lib|
-  require lib
+    def render_template( name )
+      erb = ERB.new( File.open( template_path(name) ,"r").read, 0, "<>")
+      erb.result( binding )
+    end
+
+  end
 end

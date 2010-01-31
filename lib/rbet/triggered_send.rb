@@ -23,34 +23,37 @@
 require 'rubygems'
 require 'hpricot'
 
-module ET
+module RBET
 
   #
   # usage:
   #
-  #   # First load the Tracker client
-  #   tracker_client = ET::Tracker.new('username', 'password')
+  #   # First load the Trigger client
+  #   trigger = ET::TriggeredSend.new('username', 'password')
   #
-  #   # get job summary
-  #   summary = job_client.retrieve_summary(12345) # pass a job_id
-  #   => {'sentCount' => 163, 'deliveredCount' => 159, ... }
+  #   # send message
+  #   summary = trigger.deliver("someone@domain.org", "message-key", {:first_name => 'John', :last_name => 'Wayne'})
+  #   => 0 # success
   #
   #
-  class Tracker < Client
+  class TriggeredSend < Client
 
-    def initialize(username,password,options={})
+    def initialize(username, password, options={})
       super
     end
 
-    # retrieves tracking information for a particular job id
-    def retrieve_summary( job_id )
-      @job_id = job_id
+    # deliver triggered email
+    def deliver(email, external_key, attributes={} )
+      @email = email
+      @external_key = external_key
+      @attributes = attributes
+      raise "external_key can't be nil" unless @external_key
       response = send do|io|
-        io << render_template('tracker_retrieve_summary')
+        io << render_template('triggered_send')
       end
       Error.check_response_error(response)
-      h = Hash.from_xml(response.read_body)
-      h['exacttarget']['system']['tracking']['emailSummary']
+      doc = Hpricot.XML(response.read_body)
+      doc.at("triggered_send_description").inner_html.to_i
     end
 
   end

@@ -1,44 +1,56 @@
-require 'rake'
-require 'rake/testtask'
-require 'rake/clean'
+require 'rubygems'
 require 'rake/gempackagetask'
+require 'rake/testtask'
 require 'rake/rdoctask'
+require 'lib/rbet/version'
 
-ET_PACKAGE='rbetmailer'
-ET_VERSION='0.0.1'
+spec = Gem::Specification.new do |s|
+  s.name             = 'rbet'
+  s.version          = RBET::Version.to_s
+  s.has_rdoc         = true
+  s.extra_rdoc_files = %w(README.rdoc)
+  s.rdoc_options     = %w(--main README.rdoc)
+  s.summary          = "A ruby wrapper for the Exact Target API"
+  s.author           = 'See Contributing Section'
+  s.email            = 'kevin@conceptsahead.com'
+  s.homepage         = 'http://github.com/n3bulous/rbet'
+  s.files            = %w(README.rdoc Rakefile) + Dir.glob("{lib,test}/**/*")
+  # s.executables    = ['rbet']
+
+  # s.add_dependency('gem_name', '~> 0.0.1')
+end
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.gem_spec = spec
+end
 
 Rake::TestTask.new do |t|
+  t.libs << 'test'
   t.test_files = FileList["test/*_test.rb"]
   t.verbose = true
 end
 
-Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = 'doc/rdoc'
-  rdoc.options << '--line-numbers'
-  rdoc.rdoc_files.add(['README','LICENSE','COPYING','lib/**/*.rb'])
+begin
+  require 'rcov/rcovtask'
+
+  Rcov::RcovTask.new(:coverage) do |t|
+    t.libs       = ['test']
+    t.test_files = FileList["test/*_test.rb"]
+    t.verbose    = true
+    t.rcov_opts  = ['--text-report', "-x #{Gem.path}", '-x /Library/Ruby', '-x /usr/lib/ruby']
+  end
+
+  task :default => :coverage
+
+rescue LoadError
+  warn "\n**** Install rcov (sudo gem install relevance-rcov) to get coverage stats ****\n"
+  task :default => :test
 end
 
-task :clean do
-  rm_rf "test/coverage"
-end
 
-task :default => :test
-
-spec = Gem::Specification.new do |s|
-  s.name = ET_PACKAGE
-  s.version = ET_VERSION
-  s.platform = Gem::Platform::RUBY
-  s.has_rdoc = true
-  s.extra_rdoc_files = [ "README" ]
-
-  s.files = %w(COPYING LICENSE README Rakefile) +
-    Dir.glob("{doc/rdoc,test}/**/*") + 
-    Dir.glob("{examples,lib}/**/*.rb")
-
-  s.require_path = "lib"
-end
-
-Rake::GemPackageTask.new(spec) do |p|
-  p.gem_spec = spec
-  p.need_tar = true if RUBY_PLATFORM !~ /mswin/
+desc 'Generate the gemspec to serve this Gem from Github'
+task :github do
+  file = File.dirname(__FILE__) + "/#{spec.name}.gemspec"
+  File.open(file, 'w') {|f| f << spec.to_ruby }
+  puts "Created gemspec: #{file}"
 end

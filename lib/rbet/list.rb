@@ -22,7 +22,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-module ET
+module RBET
   #
   # Subscriber list
   # usage:
@@ -52,7 +52,7 @@ module ET
       super
       @attributes = {}
     end
-    
+
     # get all the lists
     def all
       response = send do|io|
@@ -77,7 +77,7 @@ module ET
       Error.check_response_error(response)
       load_list( response.read_body )
     end
-    
+
     # returns a new list object by list name
     def retrieve_by_name( name )
       @search_type = "listname"
@@ -102,7 +102,7 @@ module ET
       doc = Hpricot.XML( response.read_body )
       doc.at("list_description").inner_html.to_i
     end
-    
+
     def subscriber_emails(list_id)
       @list_id = list_id
       response = send do|io|
@@ -117,7 +117,7 @@ module ET
       end
       emails
     end
-    
+
     # Sends an email to the list specified
     def send_email(list_id, email_id, attrs = {})
       defaults = {:from_name => '', :from_email => '', :additional => '',
@@ -132,9 +132,9 @@ module ET
       doc = Hpricot.XML( response.read_body )
       doc.at("job_description").inner_html.to_i rescue nil
     end
-    
+
     private
-    
+
     def load_list( body )
       doc = Hpricot.XML( body )
       doc.at("list").each_child do|child|
