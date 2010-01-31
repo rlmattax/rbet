@@ -11,6 +11,9 @@ This is an attempt to make integrating easier with ExactTarget.  ExactTarget is 
 
   sudo gem install rbet
 
+For Rails 2.1+ (?):
+  config.gem "rbet", :source => "http://gemcutter.org/"
+
 == Development Notes
 
 - Original development work was performed by Todd A. Fisher.
