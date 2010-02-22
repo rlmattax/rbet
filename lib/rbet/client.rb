@@ -25,6 +25,7 @@
 require 'net/https'
 require 'uri'
 require 'erb'
+include ERB::Util
 
 module RBET
   class Client
@@ -50,7 +51,8 @@ module RBET
       @url.use_ssl = options.key?(:use_ssl) ? options[:use_ssl] : true
       @url.set_debug_output options.key?(:debug_output) ? options[:debug_output] : nil
       @headers = {
-        'Content-Type' => 'application/x-www-form-urlencoded'
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Connection' => 'close'
       }
     end
 
@@ -90,7 +92,9 @@ module RBET
         x << @system
       end
 
-      result = 'qf=xml&xml=' + data
+      data_encoded = url_encode(data)
+
+      result = 'qf=xml&xml=' + data_encoded
 
       @url.post( @uri.path, result, @headers.merge('Content-length' => result.length.to_s) )
     end
