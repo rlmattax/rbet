@@ -78,7 +78,19 @@ module RBET
       @system = ""
       yield @system
 
-      result = 'qf=xml&xml=' + render_template( 'auth' )
+      data = ""
+      xml = Builder::XmlMarkup.new(:target => data, :indent => 2)
+      xml.instruct!
+
+      xml.exacttarget do |x|
+        x.authorization do
+          x.username @username
+          x.password @password
+        end
+        x << @system
+      end
+
+      result = 'qf=xml&xml=' + data
 
       @url.post( @uri.path, result, @headers.merge('Content-length' => result.length.to_s) )
     end

@@ -80,10 +80,21 @@ module RBET
 
     # returns a new list object by list name
     def retrieve_by_name( name )
-      @search_type = "listname"
-      @search_value = name
+      search_type = "listname"
+      search_value = name
+
+      data = ""
+      xml = Builder::XmlMarkup.new(:target => data, :indent => 2)
+      xml.system do
+        xml.system_name "list"
+        xml.action "retrieve"
+        xml.search_type search_type
+        xml.search_value search_value
+      end
+
       response = send do|io|
-        io << render_template('list_retrieve')
+        #io << render_template('list_retrieve')
+        io << data
       end
       Error.check_response_error(response)
       load_list( response.read_body )
@@ -128,7 +139,7 @@ module RBET
         io << render_template('list_send_email')
       end
       Error.check_response_error(response)
-      #puts "Response Body: #{response.read_body} \n"
+
       doc = Hpricot.XML( response.read_body )
       doc.at("job_description").inner_html.to_i rescue nil
     end
