@@ -85,8 +85,28 @@ module RBET
       @email = email
       @subscriber_listid = listid
       @attributes = attributes
+
+      data = ""
+      xml = Builder::XmlMarkup.new(:target => data, :indent => 2)
+      xml.system do
+        xml.system_name "subscriber"
+        xml.action "add"
+        xml.search_type "listid"
+        xml.search_value @subscriber_listid
+        xml.search_value2 nil
+        xml.values do
+          xml.email__address @email
+          xml.status "active"
+          @attributes.each do|name,value|
+            eval "xml.#{name} '#{(value.is_a?(Array)) ? value.join(',') : value}'"
+          end
+        end
+
+      end
+
       response = send do|io|
-        io << render_template('subscriber_add')
+        # io << render_template('subscriber_add')
+        io << data
       end
       Error.check_response_error(response)
       doc = Hpricot.XML(response.read_body)
@@ -123,7 +143,6 @@ module RBET
       @subscriber_listid = listid
       @subscriberid = subscriberid
 
-      puts render_template('subscriber_delete')
       response = send do|io|
         io << render_template('subscriber_delete')
       end
@@ -131,7 +150,5 @@ module RBET
       doc = Hpricot.XML(response.read_body)
       doc.at("subscriber_info").inner_html
     end
-
-
   end
 end
