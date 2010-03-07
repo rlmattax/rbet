@@ -3,7 +3,8 @@
 This is an attempt to make integrating easier with ExactTarget.  ExactTarget is an email newsletter system designed to make it easy to setup timely newsletters.
 
 - Exact Target: http://www.exacttarget.com/
-- Exact Target API: http://wiki.memberlandingpages.com/API_References/Web_Service_Guide
+- Exact Target XML API: http://wiki.memberlandingpages.com/API_References/XML_API
+- Exact Target Web Service API: http://wiki.memberlandingpages.com/API_References/Web_Service_Guide
 
 == Adding rbet to a Rails Project
 
