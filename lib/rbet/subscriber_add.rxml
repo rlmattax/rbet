@@ -5,7 +5,7 @@
   <search_value><%= @subscriber_listid %></search_value>
   <search_value2></search_value2>
   <values>
-    <Email__Address><%= @email %></Email__Address>
+    <email__address><%= @email %></email__address>
     <status>active</status>
     <% @attributes.each do|name,value| %>
       <<%= name %>><%= (value.is_a?(Array)) ? value.join(',') : value %></<%= name %>>
