@@ -27,9 +27,18 @@ require 'uri'
 require 'erb'
 include ERB::Util
 
+class Net::HTTP
+  alias_method :old_initialize, :initialize
+  def initialize(*args)
+    old_initialize(*args)
+    @ssl_context = OpenSSL::SSL::SSLContext.new
+    @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  end
+end
+
 module RBET
   class Client
-    attr_reader :username, :password, :headers
+    attr_reader :username, :password, :headers, :debug
     include RBET::Renderable
 
     #  Initializes a new ET::Client object
@@ -91,6 +100,8 @@ module RBET
         end
         x << @system
       end
+
+      @debug = data
 
       data_encoded = url_encode(data)
 
