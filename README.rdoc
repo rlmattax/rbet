@@ -30,6 +30,7 @@ Forkers:
 - http://github.com/frogmetrics/rbet
 - http://github.com/BDQ/rbet
 - http://github.com/n3bulous/rbet
+- http://github.com/a-b/rbet
 
 == Notes
 
