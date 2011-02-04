@@ -95,12 +95,13 @@ module RBET
         xml.search_value @subscriber_listid
         xml.search_value2 nil
         xml.values do
-          xml.email__address @email
+          xml.Email__Address @email
           xml.status "active"
           @attributes.each do|name,value|
             eval "xml.#{name} '#{(value.is_a?(Array)) ? value.join(',') : value}'"
           end
         end
+        xml.update true
 
       end
 
