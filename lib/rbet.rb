@@ -26,6 +26,6 @@ gem 'activesupport'
 require 'active_support'
 
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/rbet"))
-%w(renderable error client subscriber list tracker triggered_send).each do |lib|
+%w(renderable error client subscriber list tracker triggered_send email).each do |lib|
   require lib
 end
