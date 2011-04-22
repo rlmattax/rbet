@@ -8,9 +8,14 @@ xmlns='http://exacttarget.com/wsdl/partnerAPI'>
       <CustomerKey><%= @external_key %></CustomerKey> 
     </TriggeredSendDefinition> 
     <Subscribers>
-      <% @subscribers.each do |subscriber| %>
-        <%= subscriber.to_xml([:SubscriberKey,:EmailAddress]) %>
+      <SubscriberKey><%= @email %></SubscriberKey>
+      <EmailAddress><%= @email %></EmailAddress>
+      <% @attributes.each do |key, value| %>
+        <Attributes>
+          <Name><%= key %></Name>
+          <Value><%= value %></Value>
+        </Attributes>
       <% end %>
-    </Subscribers> 
+    </Subscribers>
   </TriggeredSend> 
 </system>
