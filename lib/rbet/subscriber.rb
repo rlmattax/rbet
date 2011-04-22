@@ -41,10 +41,19 @@ module RBET
   class Subscriber < Client
     attr_accessor :attrs
     attr_reader :email, :status
+    attr_accessor :EmailAddress, :SubscriberKey
 
     def initialize(username,password,options={})
       super
       @attrs = {}
+    end
+
+    def EmailAddress
+      return self.attrs["Email Address"]
+    end
+
+    def SubscriberKey
+      return self.attrs["Email Address"]
     end
 
     def load!(email)
@@ -142,14 +151,46 @@ module RBET
     def delete(subscriberid, email, listid, attributes ={} )
       @email = email
       @subscriber_listid = listid
-      @subscriberid = subscriberid
+      @attributes = attributes
+
+      data = ""
+      xml = Builder::XmlMarkup.new(:target => data, :indent => 2)
+
+      xml.system do
+        xml.system_name "subscriber"
+        xml.action "delete"
+        xml.search_type "listid"
+        xml.search_value listid
+        xml.search_value2 email
+        xml.values do
+          xml.Email__Address @email
+          xml.status "active"
+          @attributes.each do|name,value|
+            eval "xml.#{name} '#{(value.is_a?(Array)) ? value.join(',') : value}'"
+          end
+        end
+        xml.update true
+
+      end
 
       response = send do|io|
-        io << render_template('subscriber_delete')
+        # io << render_template('subscriber_add')
+        io << data
       end
       Error.check_response_error(response)
       doc = Hpricot.XML(response.read_body)
       doc.at("subscriber_info").inner_html
+    end
+
+    def subscription_list_ids(email)
+      @email = email
+      response = send do|io|
+        io << render_template('subscriber_subscriptions')
+      end
+      Error.check_response_error(response)
+      doc = Hpricot.XML(response.read_body)
+
+      (doc/:listid).map{|x| x.inner_html.to_i}
     end
   end
 end

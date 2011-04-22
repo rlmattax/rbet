@@ -43,10 +43,11 @@ module RBET
     end
 
     # deliver triggered email
-    def deliver(email, external_key, attributes={} )
+    def deliver(email, external_key, attributes={}, subscribers={} )
       @email = email
       @external_key = external_key
       @attributes = attributes
+      @subscribers = subscribers
       raise "external_key can't be nil" unless @external_key
       response = send do|io|
         io << render_template('triggered_send')
