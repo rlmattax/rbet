@@ -23,7 +23,8 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'rubygems'
-require 'hpricot'
+#require 'hpricot'
+require 'nokogiri'
 
 module RBET
 
@@ -66,14 +67,13 @@ module RBET
     end
 
     def load_response(body)
-      doc = Hpricot.XML(body)
-      subscriber = doc.at(:subscriber)
-      # load elements into the attrs hash
+      doc = Nokogiri::XML::Document.parse(body)
+      subscriber = doc.xpath("//subscriber")
       @attrs = {}
-      subscriber.each_child do|attr_element|
+      subscriber.children.each do|attr_element|
         if attr_element.elem?
           name = attr_element.name.gsub(/__/,' ')
-          value = attr_element.inner_html
+          value = attr_element.text
           @attrs[name] = value
           if name == 'Email Address'
             @email = value
@@ -119,8 +119,8 @@ module RBET
         io << data
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-      doc.at("subscriber_description").inner_html.to_i
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//subscriber_description").text.to_i
     end
 
     # desc:
@@ -138,8 +138,8 @@ module RBET
         io << render_template('subscriber_update')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-      doc.at("subscriber_description").inner_html.to_i
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//subscriber_description").text.to_i
     end
 
     # desc:
@@ -178,8 +178,8 @@ module RBET
         io << data
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-      doc.at("subscriber_info").inner_html
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//subscriber_info").text.to_i
     end
 
     def subscription_list_ids(email)
@@ -188,9 +188,8 @@ module RBET
         io << render_template('subscriber_subscriptions')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-
-      (doc/:listid).map{|x| x.inner_html.to_i}
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//listid").map{|x| x.text.to_i }
     end
   end
 end

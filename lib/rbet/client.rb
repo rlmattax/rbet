@@ -77,8 +77,8 @@ module RBET
         io << render_template('ping')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML( response.read_body )
-      @current_status = doc.at("Ping").inner_html
+      doc = Nokogiri::XML::Document.parse(response.read_body)
+      @current_status = doc.xpath("//Ping").text
     end
 
     # usage:

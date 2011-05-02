@@ -4,8 +4,8 @@ require 'rbet'
 require 'webrick'
 require 'thread'
 require 'rubygems'
-gem 'hpricot'
-require 'hpricot'
+
+require 'nokogiri'
 
 # shut up, webrick :-)
 class ::WEBrick::HTTPServer
@@ -67,16 +67,17 @@ class SubscriberRBETService < ::WEBrick::HTTPServlet::AbstractServlet
 
     xml_body = String.new(req.body)
     xml_body.gsub!(/qf=xml&xml=/,'')
-    doc = Hpricot.XML(xml_body)
-    system = doc.at(:system)
-    system_name = system.at(:system_name).inner_html.strip.downcase
-    action = system.at(:action).inner_html.strip.downcase
+
+    doc = Nokogiri::XML::Document.parse(CGI::unescape(xml_body))
+    system = doc.xpath("//system")
+    system_name = system.xpath("./system_name").text.strip.downcase
+    action = system.xpath("./action").text.strip.downcase
 
     params = {}
     # load all the system parameters into a hash
-    system.each_child do|element|
+    system.children.each do|element|
       next unless element.elem?
-      params[element.name] = element.inner_html.strip
+      params[element.name] = element.text.strip
     end
 
     response = service_for(system_name).send(action, params)
@@ -86,7 +87,9 @@ class SubscriberRBETService < ::WEBrick::HTTPServlet::AbstractServlet
 #{response}
 </exacttarget>)
 
-    res['Content-Type'] = "text/xml"
+    # got rid of this, was breaking the test server
+    # res['Content-Type'] = "text/xml"
+    res
   end
 
 private

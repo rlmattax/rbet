@@ -1,4 +1,5 @@
 require "builder/xmlmarkup.rb"
+require "nokogiri"
 
 module RBET
   class Email < Client
@@ -31,9 +32,8 @@ module RBET
       end
       
       Error.check_response_error(response)
-      doc = Hpricot.XML( response.read_body )
-
-      (doc/"emailID").inner_html.to_i
+      doc = Nokogiri::XML::Document.parse(response.read_body)
+      doc.xpath("//emailID").text.to_i
     end
 
   end

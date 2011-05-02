@@ -21,7 +21,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'rubygems'
-require 'hpricot'
+require 'nokogiri'
 
 module RBET
 
@@ -53,8 +53,8 @@ module RBET
         io << render_template('triggered_send')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML(response.read_body)
-      doc.at("triggered_send_description").inner_html.to_i
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//triggered_send_description").text.to_i
     end
 
   end

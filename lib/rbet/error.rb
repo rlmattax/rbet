@@ -39,11 +39,12 @@ module RBET
       if response.class != Net::HTTPOK
         raise Error.new(-1,'Network error')
       end
-      doc = Hpricot.XML(response.body)
-      error_code = doc.at("error")
-      error_msg = doc.at("error_description")
-      if( error_code and error_msg )
-        raise Error.new(error_code.inner_html.to_i,error_msg.inner_html)
+      doc = Nokogiri::XML::Document.parse(response.body)
+
+      error_code = doc.xpath("//error")
+      error_msg = doc.xpath("//error_description")
+      if( error_code and error_msg and !error_code.empty? and !error_msg.empty? )
+        raise Error.new(error_code.text.to_i,error_msg.text)
       end
     end
   end

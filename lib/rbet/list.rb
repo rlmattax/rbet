@@ -59,10 +59,10 @@ module RBET
         io << render_template('list_list_all')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML( response.read_body )
+      doc = Nokogiri::XML::Document.parse(response.read_body)
       listids = []
-      (doc/"listid").each do|listid|
-        listids << listid.inner_html.to_i
+      doc.xpath("//listid").each do |listid|
+        listids << listid.text.to_i
       end
       listids
     end
@@ -110,8 +110,8 @@ module RBET
         io << render_template('list_add')
       end
       Error.check_response_error(response)
-      doc = Hpricot.XML( response.read_body )
-      doc.at("list_description").inner_html.to_i
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//list_description").text.to_i
     end
 
     def subscriber_emails(list_id)
@@ -121,10 +121,10 @@ module RBET
       end
       Error.check_response_error(response)
       body = response.read_body
-      doc = Hpricot.XML( body )
+      doc = Nokogiri::XML::Document.parse( body )
       emails = []
-      (doc/"Email__Address").each do |row|
-        emails << row.inner_html
+      doc.xpath("//Email__Address").each do |row|
+        emails << row.text
       end
       emails
     end
@@ -140,17 +140,17 @@ module RBET
       end
       Error.check_response_error(response)
 
-      doc = Hpricot.XML( response.read_body )
-      doc.at("job_description").inner_html.to_i rescue nil
+      doc = Nokogiri::XML::Document.parse( response.read_body )
+      doc.xpath("//job_description").text.to_i rescue nil
     end
 
     private
 
     def load_list( body )
-      doc = Hpricot.XML( body )
-      doc.at("list").each_child do|child|
-        if child.respond_to?(:name) and child.respond_to?(:inner_html)
-          @attributes[child.name] = child.inner_html
+      doc = Nokogiri::XML::Document.parse( body )
+      doc.xpath("//list").each do|child|
+        if child.respond_to?(:name) and child.respond_to?(:text)
+          @attributes[child.name] = child.text
         end
       end
       self
